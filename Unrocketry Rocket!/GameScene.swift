@@ -35,6 +35,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var rocketTotalRotation: CGFloat = 0
     private let maxRotationAngle: CGFloat = .pi / 3 // 60 degrees in radians
+    private let rocketSpeed: CGFloat = 200 // Increased from 100 to 200
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -130,7 +131,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         moveObstacles()
         spawnObstacle()
-        updateRocketRotation()
+        updateRocketRotation() // This will also update the rocket's position
         
         obstacleSpeed += CGFloat(deltaTime) * 5 // Increase speed over time
         score += 1
@@ -201,6 +202,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Apply rotation to the rocket
         rocket.zRotation = rocketTotalRotation
+        
+        // Update rocket position
+        updateRocketPosition()
+    }
+    
+    private func updateRocketPosition() {
+        let horizontalMovement = rocketSpeed * CGFloat(deltaTime) * -sin(rocketTotalRotation)
+        var newX = rocket.position.x + horizontalMovement
+        
+        // Keep the rocket within the screen bounds
+        newX = max(rocket.size.width / 2, min(newX, frame.width - rocket.size.width / 2))
+        
+        rocket.position = CGPoint(x: newX, y: rocket.position.y)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {

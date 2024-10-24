@@ -158,7 +158,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func spawnObstaclePair() {
         let screenWidth = frame.width
         let obstacleHeight: CGFloat = 20
-        let gapWidth: CGFloat = rocket.size.width * 2 // Ensure the gap is wide enough for the rocket
+        let minGapWidth: CGFloat = rocket.size.width * 2 // Minimum gap width
+        let maxGapWidth: CGFloat = minGapWidth + 50 // Maximum gap width
+        let gapWidth = CGFloat.random(in: minGapWidth...maxGapWidth)
         let totalObstacleWidth = screenWidth - gapWidth
         
         // Randomize vertical spacing between pairs, with a minimum of 300 pixels

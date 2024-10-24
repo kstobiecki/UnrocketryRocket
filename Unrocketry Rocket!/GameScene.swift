@@ -130,8 +130,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         lastUpdateTime = currentTime
         
         moveObstacles()
-        spawnObstacle()
-        updateRocketRotation() // This will also update the rocket's position
+        
+        // Ensure at least two pairs of obstacles are visible
+        if obstacles.count < 4 || (obstacles.last?.position.y ?? 0) < frame.height {
+            spawnObstaclePair()
+        }
+        
+        updateRocketRotation()
         
         obstacleSpeed += CGFloat(deltaTime) * 5 // Increase speed over time
         score += 1
@@ -150,36 +155,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    private func spawnObstacle() {
-        guard obstacles.count < 5 else { return }
-        
-        let obstacle = SKSpriteNode(imageNamed: "obstacle")
+    private func spawnObstaclePair() {
         let screenWidth = frame.width
-        let minWidth = screenWidth * 0.3
-        let maxWidth = screenWidth * 0.6
-        let obstacleWidth = CGFloat.random(in: minWidth...maxWidth)
+        let obstacleHeight: CGFloat = 20
+        let gapWidth: CGFloat = rocket.size.width * 2 // Ensure the gap is wide enough for the rocket
+        let obstacleWidth = (screenWidth - gapWidth) / 2
         
-        obstacle.size = CGSize(width: obstacleWidth, height: 20)
+        // Randomize vertical spacing between pairs, with a minimum of 300 pixels
+        let minVerticalSpacing: CGFloat = 300
+        let maxVerticalSpacing: CGFloat = 500
+        let verticalSpacing = CGFloat.random(in: minVerticalSpacing...maxVerticalSpacing)
         
-        let isLeftSide = Bool.random()
-        let xPosition: CGFloat
+        // Calculate the y-position for the new pair of obstacles
+        let lastObstacleY = obstacles.last?.position.y ?? frame.height
+        let newYPosition = lastObstacleY + verticalSpacing
         
-        if isLeftSide {
-            xPosition = obstacle.size.width / 2
-        } else {
-            xPosition = frame.width - obstacle.size.width / 2
+        // Create left obstacle
+        let leftObstacle = SKSpriteNode(imageNamed: "obstacle")
+        leftObstacle.size = CGSize(width: obstacleWidth, height: obstacleHeight)
+        leftObstacle.position = CGPoint(x: obstacleWidth / 2, y: newYPosition)
+        
+        // Create right obstacle
+        let rightObstacle = SKSpriteNode(imageNamed: "obstacle")
+        rightObstacle.size = CGSize(width: obstacleWidth, height: obstacleHeight)
+        rightObstacle.position = CGPoint(x: screenWidth - obstacleWidth / 2, y: newYPosition)
+        
+        // Set physics properties
+        for obstacle in [leftObstacle, rightObstacle] {
+            obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
+            obstacle.physicsBody?.isDynamic = false
+            obstacle.physicsBody?.categoryBitMask = obstacleCategory
+            obstacle.physicsBody?.contactTestBitMask = rocketCategory
+            obstacle.physicsBody?.collisionBitMask = 0
+            addChild(obstacle)
+            obstacles.append(obstacle)
         }
-        
-        obstacle.position = CGPoint(x: xPosition, y: frame.height + obstacle.size.height)
-        
-        obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
-        obstacle.physicsBody?.isDynamic = false
-        obstacle.physicsBody?.categoryBitMask = obstacleCategory
-        obstacle.physicsBody?.contactTestBitMask = rocketCategory
-        obstacle.physicsBody?.collisionBitMask = 0
-        
-        addChild(obstacle)
-        obstacles.append(obstacle)
     }
     
     private func updateRocketRotation() {

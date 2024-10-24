@@ -159,7 +159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let screenWidth = frame.width
         let obstacleHeight: CGFloat = 20
         let gapWidth: CGFloat = rocket.size.width * 2 // Ensure the gap is wide enough for the rocket
-        let obstacleWidth = (screenWidth - gapWidth) / 2
+        let totalObstacleWidth = screenWidth - gapWidth
         
         // Randomize vertical spacing between pairs, with a minimum of 300 pixels
         let minVerticalSpacing: CGFloat = 300
@@ -170,15 +170,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let lastObstacleY = obstacles.last?.position.y ?? frame.height
         let newYPosition = lastObstacleY + verticalSpacing
         
+        // Randomly decide which obstacle is shorter
+        let leftObstacleWidth = Bool.random() ? totalObstacleWidth * 0.4 : totalObstacleWidth * 0.6
+        let rightObstacleWidth = totalObstacleWidth - leftObstacleWidth
+        
         // Create left obstacle
         let leftObstacle = SKSpriteNode(imageNamed: "obstacle")
-        leftObstacle.size = CGSize(width: obstacleWidth, height: obstacleHeight)
-        leftObstacle.position = CGPoint(x: obstacleWidth / 2, y: newYPosition)
+        leftObstacle.size = CGSize(width: leftObstacleWidth, height: obstacleHeight)
+        leftObstacle.position = CGPoint(x: leftObstacleWidth / 2, y: newYPosition)
         
         // Create right obstacle
         let rightObstacle = SKSpriteNode(imageNamed: "obstacle")
-        rightObstacle.size = CGSize(width: obstacleWidth, height: obstacleHeight)
-        rightObstacle.position = CGPoint(x: screenWidth - obstacleWidth / 2, y: newYPosition)
+        rightObstacle.size = CGSize(width: rightObstacleWidth, height: obstacleHeight)
+        rightObstacle.position = CGPoint(x: screenWidth - rightObstacleWidth / 2, y: newYPosition)
         
         // Set physics properties
         for obstacle in [leftObstacle, rightObstacle] {

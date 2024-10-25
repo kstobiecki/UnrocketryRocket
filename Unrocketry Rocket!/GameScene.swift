@@ -30,8 +30,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver = false
     
     // Category bitmasks for collision detection
-    let rocketCategory: UInt32 = 0x1 << 0
-    let obstacleCategory: UInt32 = 0x1 << 1
+    private let rocketCategory: UInt32 = 0x1 << 0
+    private let obstacleCategory: UInt32 = 0x1 << 1
     
     private var rocketTotalRotation: CGFloat = 0
     private let maxRotationAngle: CGFloat = .pi / 3 // 60 degrees in radians
@@ -39,16 +39,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         setupPhysics()
-        setupRocket()
         setupScoreLabel()
         setupGameOverLabel()
         setupRestartButton()
         startBackgroundMusic()
+        physicsWorld.contactDelegate = self
+        setupRocket()
     }
     
     private func setupPhysics() {
         physicsWorld.gravity = .zero
-        physicsWorld.contactDelegate = self
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
     }
     
@@ -59,7 +59,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rocket.zRotation = -.pi / 2 // Point upwards
         
         rocket.physicsBody = SKPhysicsBody(rectangleOf: rocket.size)
-        rocket.physicsBody?.isDynamic = false
+        rocket.physicsBody?.isDynamic = true
+        rocket.physicsBody?.affectedByGravity = false
         rocket.physicsBody?.categoryBitMask = rocketCategory
         rocket.physicsBody?.contactTestBitMask = obstacleCategory
         rocket.physicsBody?.collisionBitMask = 0
@@ -157,7 +158,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func spawnObstaclePair() {
         let screenWidth = frame.width
-        let obstacleHeight: CGFloat = 20
+        let obstacleHeight: CGFloat = 50
         let minGapWidth: CGFloat = rocket.size.width * 2 // Minimum gap width
         let maxGapWidth: CGFloat = minGapWidth + 50 // Maximum gap width
         let gapWidth = CGFloat.random(in: minGapWidth...maxGapWidth)
@@ -234,17 +235,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
-        if (contact.bodyA.categoryBitMask == rocketCategory && contact.bodyB.categoryBitMask == obstacleCategory) ||
-           (contact.bodyA.categoryBitMask == obstacleCategory && contact.bodyB.categoryBitMask == rocketCategory) {
+        let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+        
+        if collision == (rocketCategory | obstacleCategory) {
+            print("Collision detected!") // Add this line for debugging
             gameOver()
         }
     }
     
     private func gameOver() {
+        if isGameOver { return } // Prevent multiple calls
+        
         isGameOver = true
-        gameOverLabel.isHidden = false
-        restartButton.isHidden = false
+        print("Game Over!") // Add this line for debugging
+        
+        // Optionally, play a game over sound
         run(SKAction.playSoundFileNamed("game_over_sound.mp3", waitForCompletion: false))
+        
+        // Transition to the GameOverScene
+        let gameOverScene = GameOverScene(size: size)
+        gameOverScene.scaleMode = scaleMode
+        gameOverScene.score = score
+        view?.presentScene(gameOverScene, transition: .fade(withDuration: 1.0))
     }
     
     private func restartGame() {

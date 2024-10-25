@@ -244,15 +244,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func gameOver() {
-        if isGameOver { return } // Prevent multiple calls
+        if isGameOver { return }
         
         isGameOver = true
-        print("Game Over!") // Add this line for debugging
+        print("Game Over!")
         
-        // Optionally, play a game over sound
-        run(SKAction.playSoundFileNamed("game_over_sound.mp3", waitForCompletion: false))
-        
-        // Transition to the GameOverScene
         let gameOverScene = GameOverScene(size: size)
         gameOverScene.scaleMode = scaleMode
         gameOverScene.score = score

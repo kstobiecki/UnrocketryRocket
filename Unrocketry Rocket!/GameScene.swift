@@ -36,7 +36,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var rocketTotalRotation: CGFloat = 0
     private let maxRotationAngle: CGFloat = .pi / 3 // 60 degrees in radians
-    private let rocketSpeed: CGFloat = 200 // Increased from 100 to 200
+    private let rocketSpeed: CGFloat = 150 // Increased from 100 to 200
+    
+    private var initialDelay: TimeInterval = 1.0
+    private var canMove = false
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -63,13 +66,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rocket = SKSpriteNode(imageNamed: "rocket")
         rocket.size = CGSize(width: 40, height: 60)
         rocket.position = CGPoint(x: frame.midX, y: frame.height * 0.2)
-        rocket.zRotation = -.pi / 2 // Point upwards
+        rocket.zRotation = 0  // Changed from -.pi / 2 to 0 to point upward
         
         rocket.physicsBody = SKPhysicsBody(rectangleOf: rocket.size)
         rocket.physicsBody?.isDynamic = true
         rocket.physicsBody?.affectedByGravity = false
         rocket.physicsBody?.categoryBitMask = rocketCategory
-        rocket.physicsBody?.contactTestBitMask = obstacleCategory | wallCategory
+        rocket.physicsBody?.contactTestBitMask = obstacleCategory
         rocket.physicsBody?.collisionBitMask = 0
         
         addChild(rocket)
@@ -114,14 +117,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if isGameOver {
-            if let touch = touches.first {
-                let location = touch.location(in: self)
-                if restartButton.contains(location) {
-                    restartGame()
-                }
-            }
-        } else {
+        if !isGameOver {
             rocketDirection *= -1
             run(SKAction.playSoundFileNamed("turn_sound.mp3", waitForCompletion: false))
         }
@@ -137,16 +133,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
         
-        moveObstacles()
+        // Update initial delay
+        if !canMove {
+            initialDelay -= deltaTime
+            if initialDelay <= 0 {
+                canMove = true
+            }
+        }
         
-        // Ensure at least two pairs of obstacles are visible
+        moveObstacles()
+        if canMove {
+            updateRocketRotation()
+            updateRocketPosition()
+        } else {
+            // Keep rocket centered during delay
+            rocket.position = CGPoint(x: frame.midX, y: rocket.position.y)
+        }
+        
+        // Ensure obstacles are spawning
         if obstacles.count < 4 || (obstacles.last?.position.y ?? 0) < frame.height {
             spawnObstaclePair()
         }
         
-        updateRocketRotation()
-        
-        obstacleSpeed += CGFloat(deltaTime) * 5 // Increase speed over time
+        obstacleSpeed += CGFloat(deltaTime) * 5
         score += 1
     }
     
@@ -207,7 +216,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func updateRocketRotation() {
-        let rotationRate: CGFloat = .pi / 2 // 90 degrees per second
+        let rotationRate: CGFloat = .pi / 1.5 // 120 degrees per second
         let rotationAmount = rotationRate * CGFloat(deltaTime) * rocketDirection
         
         // Calculate new total rotation

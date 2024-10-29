@@ -15,6 +15,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var scoreLabel: SKLabelNode!
     private var gameOverLabel: SKLabelNode!
     private var restartButton: SKLabelNode!
+    private var velocityLabel: SKLabelNode!
     
     private var lastUpdateTime: TimeInterval = 0
     private var deltaTime: TimeInterval = 0
@@ -36,14 +37,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var rocketTotalRotation: CGFloat = 0
     private let maxRotationAngle: CGFloat = .pi / 3 // 60 degrees in radians
-    private let rocketSpeed: CGFloat = 150 // Increased from 100 to 200
+    private var rocketSpeed: CGFloat = 150 // Increased from 100 to 200
     
     private var initialDelay: TimeInterval = 1.0
     private var canMove = false
     
+    private var displaySpeed: Int = 0
+    
     override func didMove(to view: SKView) {
         setupPhysics()
-        setupScoreLabel()
+        setupLabels()
         setupGameOverLabel()
         setupRestartButton()
         startBackgroundMusic()
@@ -78,18 +81,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(rocket)
     }
     
-    private func setupScoreLabel() {
+    private func setupLabels() {
+        // Setup score label
         scoreLabel = SKLabelNode(fontNamed: "Arial")
         scoreLabel.text = "Score: 0"
         scoreLabel.fontSize = 24
         scoreLabel.horizontalAlignmentMode = .left
         scoreLabel.verticalAlignmentMode = .top
-        
-        let topPadding: CGFloat = 70  // Adjust this value for different devices
-        let leftPadding: CGFloat = 20
-        
-        scoreLabel.position = CGPoint(x: frame.minX + leftPadding, y: frame.maxY - topPadding)
+        scoreLabel.position = CGPoint(x: 20, y: frame.maxY - 80)
         addChild(scoreLabel)
+        
+        // Setup velocity label
+        velocityLabel = SKLabelNode(fontNamed: "Arial")
+        velocityLabel.text = "Speed: 0"
+        velocityLabel.fontSize = 24
+        velocityLabel.horizontalAlignmentMode = .right
+        velocityLabel.verticalAlignmentMode = .top
+        velocityLabel.position = CGPoint(x: frame.maxX - 20, y: frame.maxY - 80)
+        addChild(velocityLabel)
     }
     
     private func setupGameOverLabel() {
@@ -156,6 +165,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         obstacleSpeed += CGFloat(deltaTime) * 5
+        displaySpeed = Int(obstacleSpeed - 200)
+        velocityLabel.text = "Speed: \(max(0, displaySpeed))"
         score += 1
     }
     

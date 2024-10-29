@@ -13,7 +13,7 @@ class HighScoresScene: SKScene {
         let titleLabel = SKLabelNode(fontNamed: "Arial")
         titleLabel.text = "High Scores"
         titleLabel.fontSize = 40
-        titleLabel.position = CGPoint(x: frame.midX, y: frame.maxY - 50)
+        titleLabel.position = CGPoint(x: frame.midX, y: frame.maxY - 100)
         addChild(titleLabel)
         
         let highScores = HighScoreManager.shared.getHighScores()
@@ -22,7 +22,7 @@ class HighScoresScene: SKScene {
             let scoreLabel = SKLabelNode(fontNamed: "Arial")
             scoreLabel.text = "\(index + 1). \(score.score) - \(formatDate(score.date))"
             scoreLabel.fontSize = 20
-            scoreLabel.position = CGPoint(x: frame.midX, y: frame.maxY - 100 - CGFloat(index * 30))
+            scoreLabel.position = CGPoint(x: frame.midX, y: frame.maxY - 250 - CGFloat(index * 30))
             addChild(scoreLabel)
         }
         

@@ -1,6 +1,9 @@
 import SpriteKit
 
 class HighScoresScene: SKScene {
+    var cameFromGameOver = false
+    var lastScore: Int = 0
+    
     override func didMove(to view: SKView) {
         setupHighScores()
     }
@@ -46,9 +49,16 @@ class HighScoresScene: SKScene {
         let touchedNode = atPoint(location)
         
         if touchedNode.name == "backButton" {
-            let menuScene = MenuScene(size: size)
-            menuScene.scaleMode = .aspectFill
-            view?.presentScene(menuScene, transition: .fade(withDuration: 0.5))
+            if cameFromGameOver {
+                let gameOverScene = GameOverScene(size: size)
+                gameOverScene.scaleMode = .aspectFill
+                gameOverScene.score = lastScore
+                view?.presentScene(gameOverScene, transition: .fade(withDuration: 0.5))
+            } else {
+                let menuScene = MenuScene(size: size)
+                menuScene.scaleMode = .aspectFill
+                view?.presentScene(menuScene, transition: .fade(withDuration: 0.5))
+            }
         }
     }
 }

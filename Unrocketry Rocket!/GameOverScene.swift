@@ -58,6 +58,8 @@ class GameOverScene: SKScene {
         } else if touchedNode.name == "highScoresButton" {
             let highScoresScene = HighScoresScene(size: size)
             highScoresScene.scaleMode = .aspectFill
+            highScoresScene.cameFromGameOver = true
+            highScoresScene.lastScore = score
             view?.presentScene(highScoresScene, transition: .fade(withDuration: 0.5))
         } else if touchedNode.name == "menuButton" {
             let menuScene = MenuScene(size: size)

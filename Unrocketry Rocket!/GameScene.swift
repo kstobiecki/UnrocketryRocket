@@ -32,6 +32,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Category bitmasks for collision detection
     private let rocketCategory: UInt32 = 0x1 << 0
     private let obstacleCategory: UInt32 = 0x1 << 1
+    private let wallCategory: UInt32 = 0x1 << 2
     
     private var rocketTotalRotation: CGFloat = 0
     private let maxRotationAngle: CGFloat = .pi / 3 // 60 degrees in radians
@@ -49,7 +50,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func setupPhysics() {
         physicsWorld.gravity = .zero
+        
+        // Create physics body for walls
+        let frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        physicsBody?.categoryBitMask = wallCategory
+        physicsBody?.contactTestBitMask = rocketCategory
+        physicsBody?.collisionBitMask = 0
     }
     
     private func setupRocket() {
@@ -62,7 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rocket.physicsBody?.isDynamic = true
         rocket.physicsBody?.affectedByGravity = false
         rocket.physicsBody?.categoryBitMask = rocketCategory
-        rocket.physicsBody?.contactTestBitMask = obstacleCategory
+        rocket.physicsBody?.contactTestBitMask = obstacleCategory | wallCategory
         rocket.physicsBody?.collisionBitMask = 0
         
         addChild(rocket)
@@ -237,7 +244,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
-        if collision == (rocketCategory | obstacleCategory) {
+        if collision == (rocketCategory | obstacleCategory) || collision == (rocketCategory | wallCategory) {
             print("Collision detected!") // Add this line for debugging
             gameOver()
         }

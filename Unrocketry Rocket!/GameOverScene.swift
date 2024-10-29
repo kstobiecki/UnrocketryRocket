@@ -29,7 +29,7 @@ class GameOverScene: SKScene {
         addChild(scoreLabel)
         
         let restartLabel = SKLabelNode(fontNamed: "Arial")
-        restartLabel.text = "Tap to Restart"
+        restartLabel.text = "Restart"
         restartLabel.fontSize = 36
         restartLabel.position = CGPoint(x: frame.midX, y: frame.midY - 100)
         restartLabel.name = "restartButton"

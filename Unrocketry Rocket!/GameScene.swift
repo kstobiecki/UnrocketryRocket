@@ -44,6 +44,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var displaySpeed: Int = 0
     
+    private var backgrounds: [SKSpriteNode] = []
+    private let backgroundScrollSpeed: CGFloat = 1.0
+    private let numberOfBackgrounds = 5
+    
     override func didMove(to view: SKView) {
         setupPhysics()
         setupLabels()
@@ -52,6 +56,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         startBackgroundMusic()
         physicsWorld.contactDelegate = self
         setupRocket()
+        setupBackground()
     }
     
     private func setupPhysics() {
@@ -125,6 +130,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(backgroundMusic)
     }
     
+    private func setupBackground() {
+        // Create initial set of backgrounds
+        for i in 0...numberOfBackgrounds {  // One extra to ensure continuous scrolling
+            let backgroundNumber = (i % numberOfBackgrounds) + 1  // Cycle through 1-5
+            let background = SKSpriteNode(imageNamed: "background\(backgroundNumber)")
+            background.size = size  // Full screen size
+            background.anchorPoint = CGPoint.zero
+            background.position = CGPoint(x: 0, y: size.height * CGFloat(i))  // Stack them full-height
+            background.zPosition = -1  // Behind everything else
+            addChild(background)
+            backgrounds.append(background)
+        }
+    }
+    
+    private func updateBackground() {
+        for background in backgrounds {
+            background.position.y -= obstacleSpeed * CGFloat(deltaTime) * backgroundScrollSpeed
+            
+            // If the background has scrolled off the screen
+            if background.position.y <= -background.size.height {
+                // Find the highest background
+                let highestBackground = backgrounds.max { $0.position.y < $1.position.y }!
+                
+                // Move this background above the highest one
+                background.position.y = highestBackground.position.y + background.size.height
+                
+                // Change the image to maintain the pattern
+                let currentIndex = Int(background.position.y / background.size.height) % numberOfBackgrounds
+                let backgroundNumber = (currentIndex % numberOfBackgrounds) + 1
+                background.texture = SKTexture(imageNamed: "background\(backgroundNumber)")
+            }
+        }
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !isGameOver {
             rocketDirection *= -1
@@ -168,6 +207,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         displaySpeed = Int(obstacleSpeed - 200)
         velocityLabel.text = "Speed: \(max(0, displaySpeed))"
         score += 1
+        
+        updateBackground()
     }
     
     private func moveObstacles() {

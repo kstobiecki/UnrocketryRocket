@@ -73,9 +73,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rocket = SKSpriteNode(imageNamed: "rocket")
         rocket.size = CGSize(width: 40, height: 60)
         rocket.position = CGPoint(x: frame.midX, y: frame.height * 0.2)
-        rocket.zRotation = 0  // Changed from -.pi / 2 to 0 to point upward
+        rocket.zRotation = 0
         
-        rocket.physicsBody = SKPhysicsBody(rectangleOf: rocket.size)
+        // Create a path that matches the rocket's shape
+        let path = CGMutablePath()
+        
+        // Define points for a rocket-like shape (adjust these points to match your rocket image)
+        let points: [CGPoint] = [
+            CGPoint(x: 0, y: 25),     // Top point
+            CGPoint(x: 5, y: 10),     // Upper right
+            CGPoint(x: 8, y: -20),    // Lower right
+            CGPoint(x: 0, y: -30),    // Bottom point
+            CGPoint(x: -8, y: -20),   // Lower left
+            CGPoint(x: -5, y: 10)     // Upper left
+        ]
+        
+        // Create the path from points
+        path.move(to: points[0])
+        for i in 1..<points.count {
+            path.addLine(to: points[i])
+        }
+        path.closeSubpath()
+        
+        // Create physics body from the path
+        rocket.physicsBody = SKPhysicsBody(polygonFrom: path)
+        
         rocket.physicsBody?.isDynamic = true
         rocket.physicsBody?.affectedByGravity = false
         rocket.physicsBody?.categoryBitMask = rocketCategory

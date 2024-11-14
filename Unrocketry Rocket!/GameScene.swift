@@ -37,7 +37,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var rocketTotalRotation: CGFloat = 0
     private let maxRotationAngle: CGFloat = .pi / 3 // 60 degrees in radians
-    private var rocketSpeed: CGFloat = 150 // Increased from 100 to 200
+    private var rocketSpeed: CGFloat = 150  // Starting speed
     
     private var initialDelay: TimeInterval = 1.0
     private var canMove = false
@@ -46,7 +46,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var backgrounds: [SKSpriteNode] = []
     private let backgroundScrollSpeed: CGFloat = 1.0
-    private let numberOfBackgrounds = 5
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -131,14 +130,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupBackground() {
-        // Create initial set of backgrounds
-        for i in 0...numberOfBackgrounds {  // One extra to ensure continuous scrolling
-            let backgroundNumber = (i % numberOfBackgrounds) + 1  // Cycle through 1-5
-            let background = SKSpriteNode(imageNamed: "background\(backgroundNumber)")
-            background.size = size  // Full screen size
+        // Create two copies of the same tall background for seamless scrolling
+        for i in 0...1 {
+            let background = SKSpriteNode(imageNamed: "background1")
+            background.size = CGSize(width: size.width, height: size.height * 5)  // 5 times screen height
             background.anchorPoint = CGPoint.zero
-            background.position = CGPoint(x: 0, y: size.height * CGFloat(i))  // Stack them full-height
-            background.zPosition = -1  // Behind everything else
+            background.position = CGPoint(x: 0, y: background.size.height * CGFloat(i - 1))
+            background.zPosition = -1
             addChild(background)
             backgrounds.append(background)
         }
@@ -152,14 +150,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if background.position.y <= -background.size.height {
                 // Find the highest background
                 let highestBackground = backgrounds.max { $0.position.y < $1.position.y }!
-                
                 // Move this background above the highest one
                 background.position.y = highestBackground.position.y + background.size.height
-                
-                // Change the image to maintain the pattern
-                let currentIndex = Int(background.position.y / background.size.height) % numberOfBackgrounds
-                let backgroundNumber = (currentIndex % numberOfBackgrounds) + 1
-                background.texture = SKTexture(imageNamed: "background\(backgroundNumber)")
             }
         }
     }
@@ -176,46 +168,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if lastUpdateTime == 0 {
             lastUpdateTime = currentTime
+            return
         }
         
-        deltaTime = currentTime - lastUpdateTime
+        deltaTime = min(currentTime - lastUpdateTime, 1.0 / 60.0)
         lastUpdateTime = currentTime
         
-        // Update initial delay
-        if !canMove {
-            initialDelay -= deltaTime
-            if initialDelay <= 0 {
-                canMove = true
-            }
-        }
-        
         moveObstacles()
-        if canMove {
-            updateRocketRotation()
-            updateRocketPosition()
-        } else {
-            // Keep rocket centered during delay
-            rocket.position = CGPoint(x: frame.midX, y: rocket.position.y)
-        }
+        updateRocketRotation()
+        updateRocketPosition()
+        updateBackground()
         
-        // Ensure obstacles are spawning
         if obstacles.count < 4 || (obstacles.last?.position.y ?? 0) < frame.height {
             spawnObstaclePair()
         }
         
         obstacleSpeed += CGFloat(deltaTime) * 5
-        displaySpeed = Int(obstacleSpeed - 200)
-        velocityLabel.text = "Speed: \(max(0, displaySpeed))"
-        score += 1
+        rocketSpeed += CGFloat(deltaTime) * 0.5
         
-        updateBackground()
+        score += 1
     }
     
     private func moveObstacles() {
         for obstacle in obstacles {
             obstacle.position.y -= obstacleSpeed * CGFloat(deltaTime)
             
-            if obstacle.position.y < -obstacle.size.height {
+            // Remove obstacles that are off screen
+            if obstacle.position.y < -100 {  // Add this check
                 obstacle.removeFromParent()
                 if let index = obstacles.firstIndex(of: obstacle) {
                     obstacles.remove(at: index)
@@ -294,12 +273,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func updateRocketPosition() {
         let horizontalMovement = rocketSpeed * CGFloat(deltaTime) * -sin(rocketTotalRotation)
-        var newX = rocket.position.x + horizontalMovement
+        let newX = rocket.position.x + horizontalMovement
         
-        // Keep the rocket within the screen bounds
-        newX = max(rocket.size.width / 2, min(newX, frame.width - rocket.size.width / 2))
-        
-        rocket.position = CGPoint(x: newX, y: rocket.position.y)
+        // Keep rocket within screen bounds
+        rocket.position.x = min(max(newX, rocket.size.width/2), frame.width - rocket.size.width/2)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {

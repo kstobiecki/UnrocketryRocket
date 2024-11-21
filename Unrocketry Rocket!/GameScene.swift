@@ -178,7 +178,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func updateBackground() {
-        let buffer: CGFloat = 50
+        let buffer: CGFloat = 25
         
         for background in backgrounds {
             background.position.y -= obstacleSpeed * CGFloat(deltaTime) * backgroundScrollSpeed
@@ -334,7 +334,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if collision == (rocketCategory | obstacleCategory) || collision == (rocketCategory | wallCategory) {
             print("Collision detected!") // Add this line for debugging
-        //    gameOver()
+           gameOver()
         }
     }
     

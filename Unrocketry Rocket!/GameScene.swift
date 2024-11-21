@@ -45,7 +45,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var displaySpeed: Int = 0
     
     private var backgrounds: [SKSpriteNode] = []
-    private let backgroundScrollSpeed: CGFloat = 1.0
+    private let backgroundScrollSpeed: CGFloat = 0.3
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -155,7 +155,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Create two copies of the same tall background for seamless scrolling
         for i in 0...1 {
             let background = SKSpriteNode(imageNamed: "background1")
-            background.size = CGSize(width: size.width, height: size.height * 5)  // 5 times screen height
+            background.size = CGSize(width: size.width, height: size.height * 6.56)  // 5 times screen height
             background.anchorPoint = CGPoint.zero
             background.position = CGPoint(x: 0, y: background.size.height * CGFloat(i - 1))
             background.zPosition = -1

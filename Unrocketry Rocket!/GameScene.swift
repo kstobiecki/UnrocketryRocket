@@ -45,7 +45,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var displaySpeed: Int = 0
     
     private var backgrounds: [SKSpriteNode] = []
-    private let backgroundScrollSpeed: CGFloat = 0.3
+    private let backgroundScrollSpeed: CGFloat = 0.15
+    private let backgroundHeightMultiplier: CGFloat = 11.522
+    private var lastBackgroundNumber = 2
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -152,28 +154,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupBackground() {
-        // Create two copies of the same tall background for seamless scrolling
-        for i in 0...1 {
-            let background = SKSpriteNode(imageNamed: "background1")
-            background.size = CGSize(width: size.width, height: size.height * 11.522)  // height divided by 624. It is now 23.0465
-            background.anchorPoint = CGPoint.zero
-            background.position = CGPoint(x: 0, y: background.size.height * CGFloat(i - 1))
-            background.zPosition = -1
-            addChild(background)
-            backgrounds.append(background)
-        }
+        let backgroundHeight = size.height * backgroundHeightMultiplier
+        
+        // Start with background1
+        let background1 = SKSpriteNode(imageNamed: "background1")
+        background1.size = CGSize(width: size.width, height: backgroundHeight)
+        background1.anchorPoint = CGPoint.zero
+        background1.position = CGPoint(x: 0, y: 0)
+        background1.zPosition = -1
+        background1.name = "1"
+        addChild(background1)
+        backgrounds.append(background1)
+        
+        // Background2 positioned exactly at top of background1
+        let background2 = SKSpriteNode(imageNamed: "background2")
+        background2.size = CGSize(width: size.width, height: backgroundHeight)
+        background2.anchorPoint = CGPoint.zero
+        background2.position = CGPoint(x: 0, y: backgroundHeight)
+        background2.zPosition = -1
+        background2.name = "2"
+        addChild(background2)
+        backgrounds.append(background2)
     }
     
     private func updateBackground() {
+        let buffer: CGFloat = 50
+        
         for background in backgrounds {
             background.position.y -= obstacleSpeed * CGFloat(deltaTime) * backgroundScrollSpeed
             
             // If the background has scrolled off the screen
             if background.position.y <= -background.size.height {
-                // Find the highest background
-                let highestBackground = backgrounds.max { $0.position.y < $1.position.y }!
-                // Move this background above the highest one
-                background.position.y = highestBackground.position.y + background.size.height
+                // Find the other background
+                let otherBackground = backgrounds.first(where: { $0 != background })!
+                
+                // Calculate next background number
+                let nextNumber = lastBackgroundNumber == 1 ? 2 : 1
+                
+                // Position with buffer only when transitioning to background1
+                if nextNumber == 1 {
+                    background.position.y = otherBackground.position.y + otherBackground.size.height - buffer
+                } else {
+                    background.position.y = otherBackground.position.y + otherBackground.size.height
+                }
+                
+                // Switch background
+                background.texture = SKTexture(imageNamed: "background\(nextNumber)")
+                background.name = String(nextNumber)
+                lastBackgroundNumber = nextNumber
             }
         }
     }
@@ -306,7 +334,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if collision == (rocketCategory | obstacleCategory) || collision == (rocketCategory | wallCategory) {
             print("Collision detected!") // Add this line for debugging
-           gameOver()
+        //    gameOver()
         }
     }
     

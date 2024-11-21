@@ -155,7 +155,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Create two copies of the same tall background for seamless scrolling
         for i in 0...1 {
             let background = SKSpriteNode(imageNamed: "background1")
-            background.size = CGSize(width: size.width, height: size.height * 6.56)  // 5 times screen height
+            background.size = CGSize(width: size.width, height: size.height * 11.522)  // height divided by 624. It is now 23.0465
             background.anchorPoint = CGPoint.zero
             background.position = CGPoint(x: 0, y: background.size.height * CGFloat(i - 1))
             background.zPosition = -1
@@ -306,7 +306,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if collision == (rocketCategory | obstacleCategory) || collision == (rocketCategory | wallCategory) {
             print("Collision detected!") // Add this line for debugging
-            gameOver()
+           gameOver()
         }
     }
     

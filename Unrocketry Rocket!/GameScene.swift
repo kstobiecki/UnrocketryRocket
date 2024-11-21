@@ -42,7 +42,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var initialDelay: TimeInterval = 1.0
     private var canMove = false
     
-    private var displaySpeed: Int = 0
+    private var displaySpeed: Int = 0 {
+        didSet {
+            velocityLabel.text = "Speed: \(displaySpeed)"
+        }
+    }
     
     private var backgrounds: [SKSpriteNode] = []
     private let backgroundScrollSpeed: CGFloat = 0.15
@@ -121,11 +125,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Setup velocity label
         velocityLabel = SKLabelNode(fontNamed: "Arial")
-        velocityLabel.text = "Speed: 0"
+        velocityLabel.text = "Speed: 200"
         velocityLabel.fontSize = 24
-        velocityLabel.horizontalAlignmentMode = .right
+        velocityLabel.horizontalAlignmentMode = .left
         velocityLabel.verticalAlignmentMode = .top
-        velocityLabel.position = CGPoint(x: frame.maxX - 20, y: frame.maxY - 80)
+        velocityLabel.position = CGPoint(x: frame.maxX - 140, y: frame.maxY - 80)
         addChild(velocityLabel)
     }
     
@@ -234,7 +238,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         obstacleSpeed += CGFloat(deltaTime) * 5
-        rocketSpeed += CGFloat(deltaTime) * 0.5
+        displaySpeed = Int(obstacleSpeed)
         
         score += 1
     }

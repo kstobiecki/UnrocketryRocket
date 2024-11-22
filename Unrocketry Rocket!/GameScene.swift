@@ -260,8 +260,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func spawnObstaclePair() {
         let screenWidth = frame.width
         let obstacleHeight: CGFloat = 50
-        let minGapWidth: CGFloat = rocket.size.width * 2 // Minimum gap width
-        let maxGapWidth: CGFloat = minGapWidth + 50 // Maximum gap width
+        let minGapWidth: CGFloat = rocket.size.width * 2
+        let maxGapWidth: CGFloat = minGapWidth + 50
         let gapWidth = CGFloat.random(in: minGapWidth...maxGapWidth)
         let totalObstacleWidth = screenWidth - gapWidth
         
@@ -270,31 +270,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let maxVerticalSpacing: CGFloat = 500
         let verticalSpacing = CGFloat.random(in: minVerticalSpacing...maxVerticalSpacing)
         
-        // Calculate the y-position for the new pair of obstacles
         let lastObstacleY = obstacles.last?.position.y ?? frame.height
         let newYPosition = lastObstacleY + verticalSpacing
         
-        // Randomly decide which obstacle is shorter
         let leftObstacleWidth = Bool.random() ? totalObstacleWidth * 0.4 : totalObstacleWidth * 0.6
         let rightObstacleWidth = totalObstacleWidth - leftObstacleWidth
         
-        // Create left obstacle
+        // Create obstacles with optimized physics
         let leftObstacle = SKSpriteNode(imageNamed: "obstacle")
         leftObstacle.size = CGSize(width: leftObstacleWidth, height: obstacleHeight)
         leftObstacle.position = CGPoint(x: leftObstacleWidth / 2, y: newYPosition)
         
-        // Create right obstacle
         let rightObstacle = SKSpriteNode(imageNamed: "obstacle")
         rightObstacle.size = CGSize(width: rightObstacleWidth, height: obstacleHeight)
         rightObstacle.position = CGPoint(x: screenWidth - rightObstacleWidth / 2, y: newYPosition)
         
-        // Set physics properties
         for obstacle in [leftObstacle, rightObstacle] {
             obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
             obstacle.physicsBody?.isDynamic = false
             obstacle.physicsBody?.categoryBitMask = obstacleCategory
             obstacle.physicsBody?.contactTestBitMask = rocketCategory
             obstacle.physicsBody?.collisionBitMask = 0
+            obstacle.physicsBody?.restitution = 0  // Add this
+            obstacle.physicsBody?.friction = 0     // Add this
             addChild(obstacle)
             obstacles.append(obstacle)
         }

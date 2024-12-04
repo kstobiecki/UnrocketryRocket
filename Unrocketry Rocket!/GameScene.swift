@@ -259,7 +259,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func spawnObstaclePair() {
         let screenWidth = frame.width
-        let obstacleHeight: CGFloat = 50
+        let obstacleHeight: CGFloat = 175
         let minGapWidth: CGFloat = rocket.size.width * 2
         let maxGapWidth: CGFloat = minGapWidth + 50
         let gapWidth = CGFloat.random(in: minGapWidth...maxGapWidth)
@@ -286,13 +286,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rightObstacle.position = CGPoint(x: screenWidth - rightObstacleWidth / 2, y: newYPosition)
         
         for obstacle in [leftObstacle, rightObstacle] {
-            obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
+            // Create a shorter physics body than the visual obstacle
+            let physicsHeight = obstacle.size.height * 0.23 // Adjust this multiplier (0.6 = 60% of original height)
+            let physicsWidth = obstacle.size.width - 10 // Slightly narrower than the visual width
+            
+            // Position the physics body in the middle of the obstacle
+            let physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: physicsWidth, height: physicsHeight))
+            
+            obstacle.physicsBody = physicsBody
             obstacle.physicsBody?.isDynamic = false
             obstacle.physicsBody?.categoryBitMask = obstacleCategory
             obstacle.physicsBody?.contactTestBitMask = rocketCategory
             obstacle.physicsBody?.collisionBitMask = 0
-            obstacle.physicsBody?.restitution = 0  // Add this
-            obstacle.physicsBody?.friction = 0     // Add this
+            obstacle.physicsBody?.restitution = 0
+            obstacle.physicsBody?.friction = 0
             addChild(obstacle)
             obstacles.append(obstacle)
         }

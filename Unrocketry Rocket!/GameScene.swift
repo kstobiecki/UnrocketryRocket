@@ -77,21 +77,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func setupRocket() {
         rocket = SKSpriteNode(imageNamed: "rocket")
-        rocket.size = CGSize(width: 40, height: 60)
+        rocket.size = CGSize(width: 100, height: 120)  // 40->100 (2.5x), 60->120 (2x)
         rocket.position = CGPoint(x: frame.midX, y: frame.height * 0.2)
-        rocket.zRotation = 0
         
         // Create a path that matches the rocket's shape
         let path = CGMutablePath()
         
-        // Define points for a rocket-like shape (adjust these points to match your rocket image)
+        // Define points for a rocket-like shape (scaled up)
         let points: [CGPoint] = [
-            CGPoint(x: 0, y: 25),     // Top point
-            CGPoint(x: 5, y: 10),     // Upper right
-            CGPoint(x: 8, y: -20),    // Lower right
-            CGPoint(x: 0, y: -30),    // Bottom point
-            CGPoint(x: -8, y: -20),   // Lower left
-            CGPoint(x: -5, y: 10)     // Upper left
+            CGPoint(x: 0, y: 50),      // Top point (was 0, 25)
+            CGPoint(x: 12.5, y: 20),   // Upper right (was 5, 10)
+            CGPoint(x: 20, y: -40),    // Lower right (was 8, -20)
+            CGPoint(x: 0, y: -60),     // Bottom point (was 0, -30)
+            CGPoint(x: -20, y: -40),   // Lower left (was -8, -20)
+            CGPoint(x: -12.5, y: 20)   // Upper left (was -5, 10)
         ]
         
         // Create the path from points
@@ -101,13 +100,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         path.closeSubpath()
         
-        // Create physics body from the path
         rocket.physicsBody = SKPhysicsBody(polygonFrom: path)
-        
         rocket.physicsBody?.isDynamic = true
         rocket.physicsBody?.affectedByGravity = false
         rocket.physicsBody?.categoryBitMask = rocketCategory
-        rocket.physicsBody?.contactTestBitMask = obstacleCategory
+        rocket.physicsBody?.contactTestBitMask = obstacleCategory | wallCategory
         rocket.physicsBody?.collisionBitMask = 0
         
         addChild(rocket)
@@ -334,8 +331,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let horizontalMovement = rocketSpeed * CGFloat(deltaTime) * -sin(rocketTotalRotation)
         let newX = rocket.position.x + horizontalMovement
         
-        // Keep rocket within screen bounds
-        rocket.position.x = min(max(newX, rocket.size.width/2), frame.width - rocket.size.width/2)
+        // Allow the rocket to move slightly beyond the screen edges
+        let padding: CGFloat = 25  // Adjust this value as needed
+        let minX = -padding
+        let maxX = frame.width + padding
+        
+        rocket.position.x = min(max(newX, minX), maxX)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {

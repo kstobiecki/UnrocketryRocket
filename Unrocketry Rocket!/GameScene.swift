@@ -66,12 +66,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func setupPhysics() {
         physicsWorld.gravity = .zero
-        physicsWorld.contactDelegate = self
         
-        // Create physics body for walls exactly at screen edges
-        let frame = CGRect(x: 0, y: 0,
-                          width: size.width,
-                          height: size.height)
+        // Create physics body for walls
+        let frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.categoryBitMask = wallCategory
         physicsBody?.contactTestBitMask = rocketCategory
@@ -88,12 +85,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Define points for a rocket-like shape (scaled up)
         let points: [CGPoint] = [
-            CGPoint(x: 0, y: 50),      // Top point (was 0, 25)
-            CGPoint(x: 12.5, y: 20),   // Upper right (was 5, 10)
-            CGPoint(x: 20, y: -40),    // Lower right (was 8, -20)
-            CGPoint(x: 0, y: -60),     // Bottom point (was 0, -30)
-            CGPoint(x: -20, y: -40),   // Lower left (was -8, -20)
-            CGPoint(x: -12.5, y: 20)   // Upper left (was -5, 10)
+            CGPoint(x: 0, y: 50),      // Top point
+            CGPoint(x: 10, y: 20),   // Upper right
+            CGPoint(x: 18, y: -18),    // New middle right point
+            CGPoint(x: 5, y: -40),    // Lower right
+            CGPoint(x: 0, y: -60),     // Bottom point
+            CGPoint(x: -5, y: -40),   // Lower left
+            CGPoint(x: -18, y: -18),   // New middle left point
+            CGPoint(x: -10, y: 20)   // Upper left
         ]
         
         // Create the path from points

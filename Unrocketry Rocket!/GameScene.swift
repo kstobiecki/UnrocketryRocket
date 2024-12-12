@@ -66,9 +66,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func setupPhysics() {
         physicsWorld.gravity = .zero
+        physicsWorld.contactDelegate = self
         
-        // Create physics body for walls
-        let frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        // Create physics body for walls exactly at screen edges
+        let frame = CGRect(x: 0, y: 0,
+                          width: size.width,
+                          height: size.height)
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.categoryBitMask = wallCategory
         physicsBody?.contactTestBitMask = rocketCategory

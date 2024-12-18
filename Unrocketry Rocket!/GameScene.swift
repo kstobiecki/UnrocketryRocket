@@ -257,6 +257,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func spawnObstaclePair() {
+        let obstacleNumber = score <= 800 ? 1 : ((score - 800) / 1000) + 2
+        let assetNumber = min(obstacleNumber, 10)
+        let assetName = "obstacle\(assetNumber)"
+        
         let screenWidth = frame.width
         let obstacleHeight: CGFloat = 225
         let minGapWidth: CGFloat = rocket.size.width * 1.3
@@ -276,11 +280,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let rightObstacleWidth = totalObstacleWidth - leftObstacleWidth
         
         // Create obstacles with optimized physics
-        let leftObstacle = SKSpriteNode(imageNamed: "obstacle")
+        let leftObstacle = SKSpriteNode(imageNamed: assetName)
         leftObstacle.size = CGSize(width: leftObstacleWidth, height: obstacleHeight)
         leftObstacle.position = CGPoint(x: leftObstacleWidth / 2, y: newYPosition)
         
-        let rightObstacle = SKSpriteNode(imageNamed: "obstacle")
+        let rightObstacle = SKSpriteNode(imageNamed: assetName)
         rightObstacle.size = CGSize(width: rightObstacleWidth, height: obstacleHeight)
         rightObstacle.position = CGPoint(x: screenWidth - rightObstacleWidth / 2, y: newYPosition)
         

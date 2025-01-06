@@ -53,6 +53,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private let backgroundHeightMultiplier: CGFloat = 11.522
     private var lastBackgroundNumber = 2
     
+    private var smokeEmitter: SKEmitterNode? {
+        didSet {
+            print("Smoke emitter set: \(smokeEmitter != nil)")
+        }
+    }
+    
     override func didMove(to view: SKView) {
         setupPhysics()
         setupLabels()
@@ -110,6 +116,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rocket.physicsBody?.collisionBitMask = 0
         
         addChild(rocket)
+        
+        let emitter = RocketParticles.createSmokeEmitter()
+        emitter.position = CGPoint(x: 0, y: -rocket.size.height/2)
+        emitter.zPosition = -1
+        emitter.targetNode = self
+        rocket.addChild(emitter)
+        smokeEmitter = emitter
     }
     
     private func setupLabels() {

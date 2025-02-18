@@ -117,12 +117,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         addChild(rocket)
         
-        let emitter = RocketParticles.createSmokeEmitter()
-        emitter.position = CGPoint(x: 0, y: -rocket.size.height/2)
-        emitter.zPosition = -1
-        emitter.targetNode = self
-        rocket.addChild(emitter)
-        smokeEmitter = emitter
+        let smokeEmitter = RocketParticles.createSmokeEmitter()
+        smokeEmitter.position = CGPoint(x: 0, y: -rocket.size.height/2 + 20)
+        smokeEmitter.zPosition = -1
+        smokeEmitter.targetNode = self
+        rocket.addChild(smokeEmitter)
+        self.smokeEmitter = smokeEmitter
+        
+        let flameEmitter = RocketParticles.createFlameEmitter()
+        flameEmitter.position = CGPoint(x: 0, y: -rocket.size.height/2 + 30)
+        flameEmitter.zPosition = 1
+        flameEmitter.targetNode = self
+        rocket.addChild(flameEmitter)
     }
     
     private func setupLabels() {

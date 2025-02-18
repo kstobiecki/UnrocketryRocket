@@ -49,4 +49,51 @@ class RocketParticles {
         
         return emitter
     }
+    
+    static func createFlameEmitter() -> SKEmitterNode {
+        let emitter = SKEmitterNode()
+        
+        let size = CGSize(width: 8, height: 8)
+        UIGraphicsBeginImageContext(size)
+        let context = UIGraphicsGetCurrentContext()!
+        
+        context.setFillColor(UIColor.white.cgColor)
+        let rect = CGRect(x: 0, y: 0, width: 8, height: 8)
+        context.fillEllipse(in: rect)
+        
+        let image = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        
+        emitter.particleTexture = SKTexture(image: image)
+        emitter.particleBirthRate = 200
+        emitter.numParticlesToEmit = -1
+        emitter.particleLifetime = 0.15
+        emitter.particleLifetimeRange = 0.1
+        emitter.particleSpeed = 250
+        emitter.particleSpeedRange = 80
+        emitter.emissionAngle = -.pi/2
+        emitter.emissionAngleRange = .pi/6
+        emitter.particleAlpha = 0.8
+        emitter.particleAlphaRange = 0.2
+        emitter.particleAlphaSpeed = -4.0
+        emitter.particleScale = 0.7
+        emitter.particleScaleRange = 0.4
+        emitter.particleScaleSpeed = 1.0
+        emitter.xAcceleration = 0
+        emitter.yAcceleration = 400
+        emitter.particleColorSequence = createFlameColorSequence()
+        emitter.particleColorBlendFactor = 1.0
+        emitter.particleBlendMode = .add
+        
+        return emitter
+    }
+    
+    private static func createFlameColorSequence() -> SKKeyframeSequence {
+        let colors: [UIColor] = [
+            UIColor(red: 1.0, green: 0.9, blue: 0.0, alpha: 1.0),
+            UIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 1.0),
+            UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0),
+        ]
+        return SKKeyframeSequence(keyframeValues: colors, times: [0.0, 0.5, 1.0])
+    }
 } 

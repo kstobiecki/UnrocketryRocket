@@ -116,7 +116,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         rocket.physicsBody?.collisionBitMask = 0
         
         addChild(rocket)
-        
+
         let smokeEmitter = RocketParticles.createSmokeEmitter()
         smokeEmitter.position = CGPoint(x: 0, y: -rocket.size.height/2 + 20)
         smokeEmitter.zPosition = -1
@@ -278,7 +278,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func spawnObstaclePair() {
         let obstacleNumber = score <= 800 ? 1 : ((score - 800) / 1000) + 2
         let assetNumber = min(obstacleNumber, 10)
-        let assetName = "obstacle\(assetNumber)"
         
         let screenWidth = frame.width
         let obstacleHeight: CGFloat = 225
@@ -287,7 +286,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let gapWidth = CGFloat.random(in: minGapWidth...maxGapWidth)
         let totalObstacleWidth = screenWidth - gapWidth
         
-        // Randomize vertical spacing between pairs, with a minimum of 300 pixels
         let minVerticalSpacing: CGFloat = 300
         let maxVerticalSpacing: CGFloat = 500
         let verticalSpacing = CGFloat.random(in: minVerticalSpacing...maxVerticalSpacing)
@@ -299,29 +297,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let rightObstacleWidth = totalObstacleWidth - leftObstacleWidth
         
         // Create obstacles with optimized physics
-        let leftObstacle = SKSpriteNode(imageNamed: assetName)
+        let leftObstacle = SKSpriteNode(imageNamed: "obstacle\(assetNumber)-left")
         leftObstacle.size = CGSize(width: leftObstacleWidth, height: obstacleHeight)
-        leftObstacle.position = CGPoint(x: leftObstacleWidth / 2, y: newYPosition)
+        leftObstacle.position = CGPoint(x: 0 + leftObstacleWidth/2, y: newYPosition)  // Position from left edge
         
-        let rightObstacle = SKSpriteNode(imageNamed: assetName)
+        let rightObstacle = SKSpriteNode(imageNamed: "obstacle\(assetNumber)-right")
         rightObstacle.size = CGSize(width: rightObstacleWidth, height: obstacleHeight)
-        rightObstacle.position = CGPoint(x: screenWidth - rightObstacleWidth / 2, y: newYPosition)
+        rightObstacle.position = CGPoint(x: screenWidth - rightObstacleWidth/2, y: newYPosition)  // Position from right edge
         
         for obstacle in [leftObstacle, rightObstacle] {
-            // Create a shorter physics body than the visual obstacle
-            let physicsHeight = obstacle.size.height * 0.23 // Adjust this multiplier (0.6 = 60% of original height)
-            let physicsWidth = obstacle.size.width - 10 // Slightly narrower than the visual width
+            // Create physics body from the texture
+            if let texture = obstacle.texture {
+                let physicsBody = SKPhysicsBody(texture: texture, size: obstacle.size)
+                
+                obstacle.physicsBody = physicsBody
+                obstacle.physicsBody?.isDynamic = false
+                obstacle.physicsBody?.categoryBitMask = obstacleCategory
+                obstacle.physicsBody?.contactTestBitMask = rocketCategory
+                obstacle.physicsBody?.collisionBitMask = 0
+                obstacle.physicsBody?.restitution = 0
+                obstacle.physicsBody?.friction = 0
+            }
             
-            // Position the physics body in the middle of the obstacle
-            let physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: physicsWidth, height: physicsHeight))
-            
-            obstacle.physicsBody = physicsBody
-            obstacle.physicsBody?.isDynamic = false
-            obstacle.physicsBody?.categoryBitMask = obstacleCategory
-            obstacle.physicsBody?.contactTestBitMask = rocketCategory
-            obstacle.physicsBody?.collisionBitMask = 0
-            obstacle.physicsBody?.restitution = 0
-            obstacle.physicsBody?.friction = 0
             addChild(obstacle)
             obstacles.append(obstacle)
         }
